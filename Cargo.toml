@@ -1,9 +1,10 @@
 [package]
 name = "hex-proxy"
 version = "0.1.0"
-description = "Tiny proxy util"
+description = "A tiny, asynchronous TCP reverse proxy daemon"
 authors = ["Aleksandr Dovydenkov <asd@altlinux.org>"]
 edition = "2024"
+license = "GPLv3+"
 
 [dependencies]
 anyhow = "1.0.104"
