@@ -30,7 +30,7 @@ pub struct Config {
 #[derive(Debug, Deserialize, Clone)]
 pub struct Proxy {
     listen_address: String,
-    redirection_address: String,
+    target_address: String,
     on_fail: Option<String>,
     on_open: Option<String>,
     on_close: Option<String>,
@@ -59,10 +59,7 @@ pub async fn mainloop(config: Config) -> Result<()> {
 
 async fn proxy_mainloop(proxy: Proxy) -> Result<()> {
     let listener = TcpListener::bind(&proxy.listen_address).await?;
-    info!(
-        "  - {} -> {}",
-        &proxy.listen_address, &proxy.redirection_address
-    );
+    info!("  - {} -> {}", &proxy.listen_address, &proxy.target_address);
 
     let proxy = Arc::new(proxy);
 
@@ -74,10 +71,7 @@ async fn proxy_mainloop(proxy: Proxy) -> Result<()> {
                 continue;
             }
         };
-        debug!(
-            "New connection to {} from {}",
-            &proxy.redirection_address, addr
-        );
+        debug!("New connection to {} from {}", &proxy.target_address, addr);
 
         let th_proxy = Arc::clone(&proxy);
         tokio::spawn(async move {
@@ -87,12 +81,12 @@ async fn proxy_mainloop(proxy: Proxy) -> Result<()> {
 }
 
 async fn handle_proxy(mut client: TcpStream, proxy: Arc<Proxy>) {
-    let mut server = match TcpStream::connect(&proxy.redirection_address).await {
+    let mut server = match TcpStream::connect(&proxy.target_address).await {
         Ok(s) => s,
         Err(e) => {
             error!(
                 "Fail to connect to redirection address '{}': {}",
-                proxy.redirection_address, e
+                proxy.target_address, e
             );
 
             if let Some(cmd) = &proxy.on_fail {
