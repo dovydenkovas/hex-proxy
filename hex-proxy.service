@@ -1,0 +1,13 @@
+[Unit]
+Description=hex-proxy daemon
+After=syslog.target
+After=network.target
+
+[Service]
+RestartSec=1s
+Type=simple
+ExecStart=/usr/bin/hex-proxy -c /etc/hex-proxy.toml
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
